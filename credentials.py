@@ -1,9 +1,9 @@
-username = 'righi'
-password = 'saetta1'
+username = 'username'
+password = 'password'
 
-server_list = ['192.168.111.35',
-               '192.168.111.37',
-               '192.168.111.39',
-               '192.168.111.40']
+server_list = ['server_ip_1',
+               'server_ip_2',
+               'server_ip_3',
+               'server_ip_4']
 
-other_users = ['user']
+other_users = ['other_user_1', 'other_user_2']
