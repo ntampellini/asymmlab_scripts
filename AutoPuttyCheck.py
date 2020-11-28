@@ -1,12 +1,12 @@
-###########################################
+######################################################
 
 #  Automatically check servers for Gaussian
-#  jobs, either of user in credentials.py 
+#  jobs, either of current user in credentials.py 
 #  and of all users in other_users list.
 
 refresh_time = 5  # in minutes!
 
-############################################
+######################################################
 from credentials import *
 import paramiko
 import time
