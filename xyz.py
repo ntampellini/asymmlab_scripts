@@ -1,12 +1,21 @@
+#################################################################################
+
+# Batch convert .log Gaussian files to .xyz format to open them with VMD.
+# Creates a new ".xyz" directory in each path provided and generates an .xyz
+# file for each .log found. Re-running the code updates the .xyz files 
+# converting only .log files not already present in ".xyz" folder.
+
+folders = [r'path1',
+           r'path2',
+           r'path3',
+           r'path4']
+
+safe = True #If True, checks .log convergence before writing relative .xyz file
+
+#################################################################################
+
 from cclib.io import ccread
 import os
-folders = [r'H:\gau\NT\B3LYP_collection',
-           r'H:\gau\NT\M06-2X',
-           r'H:\gau\NT\M06-2X\SMD',
-           r'H:\gau\NT\wB97X-D\Closed_Bridge',
-           r'H:\gau\NT\wB97X-D_6-311G(d-p)_CPCM',
-           r'H:\gau\NT\Non-Epimerizable_EtMe\TSs']
-safe = True #If True, checks convergence before writing .xyz file
 for d in folders:
     os.chdir(d)
     print(f'\n-----> Checking {d}')
