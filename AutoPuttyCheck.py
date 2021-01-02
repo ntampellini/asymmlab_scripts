@@ -4,9 +4,8 @@
 #  jobs, either of current user in credentials.py 
 #  and of all users in other_users list.
 
-refresh_time = 5  # in minutes!
-
 ######################################################
+from colored import fg, bg, attr
 from credentials import *
 import paramiko
 import time
@@ -15,13 +14,14 @@ import sys
 import os
 import re
 
-users = other_users + [username] if len(other_users) > 0 else [username]
+users = other_users + [username]
+extensive = False
 
 while True:
     for server in server_list:
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh_client.connect(f'{server}', username=username, password=password)
+        ssh_client.connect(f'{server_ip}.{server}', username=username, password=password)
         output = []
         for name in users:
             stdin, stdout, stderr = ssh_client.exec_command(f'ps -u {name} all')
@@ -74,8 +74,9 @@ while True:
                     times.append(output[user][line].split()[11])
                     names.append(output[user][line].split()[14].split('/')[-1])
                     owner.append(users[user])
+        ################################################################################## END OF CHECK, START OF PRINT
         s = 's' if len(PIDS) != 1 else ''
-        print(f'\n---> Server {server} : {len(PIDS)} job{s} running, {pending} pending in queue\n\n')
+        print('\n%s---> %s%sServer %s%s%s : %s job%s running, %s pending in queue\n\n' % (fg('white'), fg('light_yellow'), attr('bold'), server, fg('white'), attr('reset'), len(PIDS), s, pending))
         if len(PIDS) > 0:
             print('RUNNING:\n')
             longest_name_len = max([len(names[index][:-4]) for index in range(len(PIDS))])
@@ -86,13 +87,24 @@ while True:
                 runtime2 = 'days' if cputime > 24 else 'hours'
                 clock = time.ctime(time.time()).split()[3]
                 space = ' '*(longest_name_len - len(names[PID][:-4]))
-                print('   %-5s : %s%s - CPU Time : %s %s' % (owner[PID], names[PID][:-4], space, runtime, runtime2))
+                print('   %-5s - %s%s - CPU Time : %s %s' % (owner[PID], names[PID][:-4], space, runtime, runtime2))
                 
         if pending_print:
             print('\nQUEUE:\n')
-            for p in range(len(pending_list)):
-                pp = pending_list[p].split('/')[-1][:-1]
-                print('   %-3s:  %s' % (p+1, pp))
-        print('----------------------------------------------------------------------------------------------------------------------')
-    time.sleep(60*refresh_time) #in seconds!
+            l = len(pending_list)
+            if l > 100 and not extensive:
+                for p in range(2):
+                    pp = pending_list[p].split('/')[-1][:-1]
+                    print('   %-3s - %s' % (p+1, pp))
+                print('         ...')
+                for p in [l-3, l-2, l-1]:
+                    pp = pending_list[p].split('/')[-1][:-1]
+                    print('   %-3s - %s' % (p+1, pp))
+            else:
+                for p in range(l):
+                    pp = pending_list[p].split('/')[-1][:-1]
+                    print('   %-3s - %s' % (p+1, pp))
+        print('%s----------------------------------------------------------------------------------------------------------------------' % (fg('light_yellow')))
+    inp = input('\n%s--> Finished. Press Enter to refresh.' % (fg(245)))
+    extensive = True if inp == 'e' else False
     os.system('cls')
