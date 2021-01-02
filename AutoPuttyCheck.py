@@ -21,7 +21,7 @@ while True:
     for server in server_list:
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh_client.connect(f'{server_ip}.{server}', username=username, password=password)
+        ssh_client.connect(server, username=username, password=password)
         output = []
         for name in users:
             stdin, stdout, stderr = ssh_client.exec_command(f'ps -u {name} all')
