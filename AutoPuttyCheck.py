@@ -76,9 +76,9 @@ while True:
                     owner.append(users[user])
         ################################################################################## END OF CHECK, START OF PRINT
         s = 's' if len(PIDS) != 1 else ''
-        print('\n%s---> %s%sServer %s%s%s : %s job%s running, %s pending in queue\n\n' % (fg('white'), fg('light_yellow'), attr('bold'), server, fg('white'), attr('reset'), len(PIDS), s, pending))
+        print('\n%s---> %s%sServer %s%s%s : %s job%s running, %s pending in queue\n' % (fg('white'), fg('light_yellow'), attr('bold'), server, fg('white'), attr('reset'), len(PIDS), s, pending))
         if len(PIDS) > 0:
-            print('RUNNING:\n')
+            print('\nRUNNING:\n')
             longest_name_len = max([len(names[index][:-4]) for index in range(len(PIDS))])
             for PID in range(len(PIDS)):
                 index = PIDS.index(PIDS[PID])
