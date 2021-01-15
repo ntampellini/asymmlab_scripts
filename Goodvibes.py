@@ -1,6 +1,5 @@
 ###############################################################################################################
-
-# Automatizes the use of Goodvibes frequency analysis and writes/prints a table with product distribution
+# Automates the use of Goodvibes frequency analysis and writes/prints a table with product distribution
 
 dirs = [r'path1',                          # List of working directories, can also be just one. 
         r'path2',
@@ -14,9 +13,8 @@ flag = 'very_important_molecule_*.log'     # Flag used for goodvibes calculation
 
 goodvibes_command = f'python -m goodvibes .\{flag} -q --cpu --freespace toluene'
 
-# For Goodvibes command syntax, check project's repository at:
+# For Goodvibes command syntax, check the project repository:
 # https://github.com/bobbypaton/GoodVibes
-
 ###############################################################################################################
 import os
 import numpy as np

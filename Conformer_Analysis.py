@@ -1,10 +1,8 @@
 #################################################################
-
-# Analyzes a series of conformers that start and end with the 
-# provided extension, and returns a table with name,
+# Analyzes a series of conformers whose name match the provided 
+# start and end fragments, and returns a table with name,
 # relative energy in desired units, and atomic position RMSD 
 # relative to lowest energy conformer, in Angstroms.
-
 
 path = r'path_to_working_directory'
 start = 'very_important_molecule_conformer_'
@@ -13,7 +11,6 @@ end = '.log'
 units = 'kcal/mol'         # eV, kj/mol, hartree, wavenumber
 write = False              # Writes a .txt file with console output
 print_table = True         # prints results to terminal
-
 #################################################################
 
 import os

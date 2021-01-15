@@ -1,6 +1,5 @@
 ###############################################################################################################
-
-# Automatizes the use of Goodvibes frequency analysis corrections computed on a lower level (opt_freq_method)
+# Automates the use of Goodvibes frequency analysis corrections computed on a lower level (opt_freq_method)
 # to a higher level single-point energy calculation (sp_method) and outputs a table with product distribution
 
 opt_freq =           r'path_to_lower_level_opt+freq_calculations'
@@ -13,7 +12,6 @@ number_of_letters =  7
 # 'conf_*_method2' with * being a number, the comparison should be done with the first 6 characters,
 # so that the names of pairs of molecules, when trimmed to the first 6 characters, are identical.
 # This allows the pairing of 'conf_1_method1' with 'conf_1_method2' and so on.
-
 ###############################################################################################################
 
 import os
