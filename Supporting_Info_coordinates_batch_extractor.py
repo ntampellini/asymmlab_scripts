@@ -1,30 +1,17 @@
 import os
 from cclib.io import ccread
 from cclib.parser import utils
+from periodictable import elements
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 folder = os.listdir()
 out = open('coordinates.txt', 'w')
 
-pt = {
-    1:'H',
-    3:'Li',
-    5:'B',
-    6:'C',
-    7:'N',
-    8:'O',
-    9:'F',
-    13:'Al',
-    14:'Si',
-    15:'P',
-    16:'S',
-    17:'Cl',
-    35:'Br'
-    }
+pt = {el.number:el.symbol for el in elements}
 
 for f in folder:
-    print('.')
     if f.endswith('.log'):
+        print('Extracting', f)
         data = ccread(f)
         name = f.split('.')[:-1][0]
         symbols = data.atomnos

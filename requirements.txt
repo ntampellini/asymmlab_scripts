@@ -3,3 +3,5 @@ colored
 pyrmsd
 cclib
 numpy
+olefile
+periodictable
