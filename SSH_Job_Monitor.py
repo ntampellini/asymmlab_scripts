@@ -1,5 +1,4 @@
 ######################################################
-
 #  Automatically check servers for Gaussian
 #  jobs, either of current user in credentials.py 
 #  and of all users in other_users list.
