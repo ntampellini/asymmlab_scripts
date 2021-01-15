@@ -1,9 +1,18 @@
+###########################################################
+#  Extracts atom coordinates from all readable .log,
+#  .pdb, .xyz, etc. files in folder and writes them to
+#  a 'coordinates.txt' file. When available, electronic
+#  energy is also included before coordinates. Move this
+#  file to the desired folder or change working directory
+#  at line 15.
+###########################################################
 import os
 from cclib.io import ccread
 from cclib.parser import utils
 from periodictable import elements
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
+# os.chdir(r'yourpath')
 folder = os.listdir()
 out = open('coordinates.txt', 'w')
 
@@ -17,7 +26,6 @@ for f in folder:
         symbols = data.atomnos
         xyz = data.atomcoords[-1]
         energy = utils.convertor(data.scfenergies[-1], 'eV', 'hartree')
-
         out.write(str(name))
         out.write('\n')
         out.write('Energy (Hartree) = ')

@@ -1,3 +1,10 @@
+#########################################################
+#  Extracts .xyz coordinates files from Spartan '14
+#  project files ('.spartan' extension). Move this file 
+#  to the folder containing the projects and run it or 
+#  set the working directory from line 14.
+#########################################################
+
 import os
 import re
 import gzip

@@ -1,5 +1,4 @@
 #################################################################################
-
 # Batch convert .log Gaussian files to .xyz format to open them with VMD.
 # Creates a new ".xyz" directory in each path provided and generates an .xyz
 # file for each .log found. Re-running the code updates the .xyz files 
@@ -11,7 +10,6 @@ folders = [r'path1',
            r'path4']
 
 safe = True #If True, checks .log convergence before writing relative .xyz file
-
 #################################################################################
 
 from cclib.io import ccread
