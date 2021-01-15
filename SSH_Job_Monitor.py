@@ -21,7 +21,7 @@ import copy
 import sys
 import os
 import re
-server_list = [root + '.' + str(ip) for ip in server_list]
+ip_list = [root + '.' + str(ip) for ip in server_list]
 users = other_users + [username]
 extensive = False
 ssh_client = paramiko.SSHClient()
@@ -31,7 +31,7 @@ def qs(server):
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-    ssh_client.connect(server, username=username, password=password)
+    ssh_client.connect(root + '.' + server, username=username, password=password)
 
     channel = ssh_client.invoke_shell()
 
@@ -73,7 +73,7 @@ if __name__ == '__main__':
     inp = ''
     while True:
         if inp not in server_list:
-            for server in server_list:
+            for server in ip_list:
                 ssh_client.connect(server, username=username, password=password)
                 output = []
                 for name in users:
@@ -129,7 +129,7 @@ if __name__ == '__main__':
                             owner.append(users[user])
                 ################################################################################## END OF CHECK, START OF PRINT
                 s = 's' if len(PIDS) != 1 else ''
-                print('\n%s---> %s%sServer %s%s%s : %s job%s running, %s pending in queue\n' % (fg('white'), fg('light_yellow'), attr('bold'), server, fg('white'), attr('reset'), len(PIDS), s, pending))
+                print('\n%s---> %s%sServer %s%s%s : %s job%s running, %s pending in queue\n' % (fg('white'), fg('light_yellow'), attr('bold'), server.split('.')[-1], fg('white'), attr('reset'), len(PIDS), s, pending))
                 if len(PIDS) > 0:
                     print('\nRUNNING:\n')
                     longest_name_len = max([len(names[index][:-4]) for index in range(len(PIDS))])
