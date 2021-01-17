@@ -4,8 +4,8 @@
 #  and of all users in other_users list.
 
 server_list = [
-               35,
-               37,
+            #    35,
+            #    37,
                39,
                40
                ]
@@ -27,7 +27,7 @@ users = other_users + [username]
 extensive = False
 ssh_client = paramiko.SSHClient()
 ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-yellowline = '%s----------------------------------------------------------------------------------------------------------------------%s' % (fg('light_yellow'), fg('white'))
+yellowline = '%s----------------------------------------------------------------------------------------------------------------------%s' % (fg('light_yellow'), fg(255))
 
 def qs(server):
     ssh_client = paramiko.SSHClient()
@@ -187,7 +187,7 @@ if __name__ == '__main__':
                             owner.append(users[user])
                 ################################################################################## END OF CHECK, START OF PRINT
                 s = 's' if len(PIDS) != 1 else ''
-                print('\n%s---> %s%sServer %s%s%s : %s job%s running, %s pending in queue\n' % (fg('white'), fg('light_yellow'), attr('bold'), server.split('.')[-1], fg('white'), attr('reset'), len(PIDS), s, pending))
+                print('\n%s---> %s%sServer %s%s%s : %s job%s running, %s pending in queue\n' % (fg(255), fg('light_yellow'), attr('bold'), server.split('.')[-1], fg(255), attr('reset'), len(PIDS), s, pending))
                 if cpu_mem_data:
                     print(f'CPU usage: {cpu_mem_data[0]} %')
                     print(f'RAM usage: {round(100 * (float(cpu_mem_data[1][0]) - float(cpu_mem_data[1][1])) / float(cpu_mem_data[1][0]), 1)} % - {round(float(cpu_mem_data[1][1]) / 1000, 1)} GB free / {round(float(cpu_mem_data[1][0]) / 1000, 1)} GB total')
@@ -224,13 +224,13 @@ if __name__ == '__main__':
             while True:
                 if int(inp) in server_list:
                     os.system('cls')
-                    print('\n%s---> %s%sServer %s%s%s : job status\n' % (fg('white'), fg('light_yellow'), attr('bold'), inp, fg('white'), attr('reset')))
+                    print('\n%s---> %s%sServer %s%s%s : job status\n' % (fg(255), fg('light_yellow'), attr('bold'), inp, fg(255), attr('reset')))
                     print('\n'.join(qs(inp)))
                     inp = input('\n%s--> Finished. Press Enter to restart or insert server number to check status. - ' % (fg(245)))
         except Exception as e:
             if e is not ValueError:
                 print(e)
-                input('\n%sSomething went wrong. Oops.%s' % (fg(245), fg('white')))
+                input('\n%sSomething went wrong. Oops.%s' % (fg(245), fg(255)))
             pass
         extensive = True if inp == 'e' else False
         os.system('cls')
