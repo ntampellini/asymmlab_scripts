@@ -4,8 +4,8 @@
 #  and of all users in other_users list.
 
 server_list = [
-            #    35,
-            #    37,
+               35,
+               37,
                39,
                40
                ]
@@ -122,7 +122,7 @@ def cpu():
 
 
 if __name__ == '__main__':
-    inp = '39'
+    inp = ''
     while True:
         if inp == '' or int(inp) not in server_list:
             for server in ip_list:
