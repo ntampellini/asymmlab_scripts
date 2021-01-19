@@ -12,6 +12,7 @@ server_list = [
                
 root = '192.168.111'
 print_cpu_usage = True
+color = 'light_yellow'
 ######################################################
 from SSH_credentials import *
 from colored import fg, bg, attr
@@ -27,7 +28,7 @@ users = [username] + other_users
 extensive = False
 ssh_client = paramiko.SSHClient()
 ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-yellowline = '%s----------------------------------------------------------------------------------------------------------------------%s' % (fg('light_yellow'), fg(255))
+yellowline = '%s----------------------------------------------------------------------------------------------------------------------%s' % (fg(color), fg(255))
 
 def qs(server):
     ssh_client = paramiko.SSHClient()
@@ -197,7 +198,7 @@ if __name__ == '__main__':
                             owner.append(users[user])
                 ################################################################################## END OF CHECK, START OF PRINT
                 s = 's' if len(PIDS) != 1 else ''
-                print('\n%s---> %s%sServer %s%s%s : %s job%s running, %s pending in queue\n' % (fg(255), fg('light_yellow'), attr('bold'), server.split('.')[-1], fg(255), attr('reset'), len(PIDS), s, pending))
+                print('\n%s---> %s%sServer %s%s%s : %s job%s running, %s pending in queue\n' % (fg(255), fg(color), attr('bold'), server.split('.')[-1], fg(255), attr('reset'), len(PIDS), s, pending))
                 if cpu_mem_data:
                     print(f'CPU usage: {cpu_mem_data[0]} %')
                     print(f'RAM usage: {round(100 * (float(cpu_mem_data[1][0]) - float(cpu_mem_data[1][1])) / float(cpu_mem_data[1][0]), 1)} % - {round(float(cpu_mem_data[1][1]) / 1000, 1)} GB free / {round(float(cpu_mem_data[1][0]) / 1000, 1)} GB total')
@@ -206,42 +207,49 @@ if __name__ == '__main__':
                     longest_name_len = max([len(names[index][:-4]) for index in range(len(PIDS))])
                     for PID in range(len(PIDS)):
                         index = PIDS.index(PIDS[PID])
-                        cputime = times[PID].split(':')[0]
-                        if '-' in cputime:
-                            _time = cputime.split('-')
-                            cputime = int(_time[1]) / 60
+                        cputime_h = times[PID].split(':')[0]
+                        cputime_m = times[PID].split(':')[1]
+                        if '-' in cputime_h:
+                            _time = cputime_h.split('-')
+                            cputime_h = int(_time[1]) + float(cputime_m) / 60
                             days = int(_time[0])
                         else:
-                            cputime = int(cputime) / 60
+                            cputime_h = int(cputime_h)
+                            cputime_h += float(cputime_m) / 60
                             days = None
-                        runtime = round(days + cputime/24, 2) if days else round(cputime, 2)
+                        runtime = round(days + cputime_h / 24, 2) if days else round(cputime_h, 2)
                         runtime2 = 'days' if days else 'hours'
                         # clock = time.ctime(time.time()).split()[3]
                         space = ' '*(longest_name_len - len(names[PID][:-4]))
-                        print('   %-5s - %s%s - CPU Time : %s %s' % (owner[PID], names[PID], space, runtime, runtime2))
+                        c1 = fg(color) if owner[PID] == username else fg(255)
+                        c2 = fg(255)
+                        print('   %s%-5s%s - %s%s - CPU Time : %s %s' % (c1, owner[PID], c2, names[PID], space, runtime, runtime2))
                         
                 if pending:
                     print(f'\nQUEUE ({username}):\n')
                     l = len(pending_list)
                     if l > 10 and not extensive:
                         for p in range(2):
-                            pp = pending_list[p].split('/')[-1].strip('\n').strip('.gjf')
-                            print('   %-3s - %s' % (p+1, pp))
+                            p_name = pending_list[p].split('/')[-1].strip('\n').strip('.gjf')
+                            p_owner = pending_list[p].split('/')[3]
+                            print('   %-3s - %s%s%s - %s' % (p+1, fg(color), p_owner, fg(255), p_name))
                         print('         ...')
                         for p in [l-3, l-2, l-1]:
-                            pp = pending_list[p].split('/')[-1].strip('\n').strip('.gjf')
-                            print('   %-3s - %s' % (p+1, pp))
+                            p_name = pending_list[p].split('/')[-1].strip('\n').strip('.gjf')
+                            p_owner = pending_list[p].split('/')[3]
+                            print('   %-3s - %s%s%s - %s' % (p+1, fg(color), p_owner, fg(255), p_name))
                     else:
                         for p in range(l):
-                            pp = pending_list[p].split('/')[-1].strip('\n').strip('.gjf')
-                            print('   %-3s - %s' % (p+1, pp))
+                            p_name = pending_list[p].split('/')[-1].strip('\n').strip('.gjf')
+                            p_owner = pending_list[p].split('/')[3]
+                            print('   %-3s - %s%s%s - %s' % (p+1, fg(color), p_owner, fg(255), p_name))
                 print(yellowline)
             inp = input('\n%s--> Finished. Press Enter to refresh or insert server number to check status. - ' % (fg(245)))
         try:
             while True:
                 if int(inp) in server_list:
                     os.system('cls')
-                    print('\n%s---> %s%sServer %s%s%s : job status\n' % (fg(255), fg('light_yellow'), attr('bold'), inp, fg(255), attr('reset')))
+                    print('\n%s---> %s%sServer %s%s%s : job status\n' % (fg(255), fg(color), attr('bold'), inp, fg(255), attr('reset')))
                     print('\n'.join(qs(inp)))
                     inp = input('\n%s--> Finished. Press Enter to restart or insert server number to check status. - ' % (fg(245)))
         except Exception as e:
