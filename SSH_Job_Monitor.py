@@ -23,7 +23,7 @@ import os
 import re
 from pprint import pprint
 ip_list = [root + '.' + str(ip) for ip in server_list]
-users = other_users + [username]
+users = [username] + other_users
 extensive = False
 ssh_client = paramiko.SSHClient()
 ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -129,45 +129,55 @@ if __name__ == '__main__':
                 ssh_client.connect(server, username=username, password=password)
                 output = []
                 for name in users:
-                    stdin, stdout, stderr = ssh_client.exec_command(f'ps -u {name} all')
-                    output.append(stdout.readlines())
+                    stdin, stdout, stderr = ssh_client.exec_command(f'ps -u {name} -f')
+                    stdout_lines = stdout.readlines()
+                    # if name == 'user':
+                    #     pprint(stdout_lines)
+                    #     quit()
+                    
+                    output.append(stdout_lines)
+                    if name == username:                                  # for now only checks queue by main user, but multi-queue control can be implemented in the future.
+                        queue = os.path.join(os.getcwd() + '\\queue')
+                        job = os.path.join(os.getcwd() + '\\job')
 
-                    queue = os.path.join(os.getcwd() + '\\queue')
-                    job = os.path.join(os.getcwd() + '\\job')
-
-                    ftp_client=ssh_client.open_sftp()
-                    try:
-                        ftp_client.get(f'/home/{name}/wdir/running.queue', queue)
-                        ftp_client.get(f'/home/{name}/wdir/running.job', job)
-                    except:
-                        q = open(queue, 'w')
-                        j = open(job, 'w')
-                    ftp_client.close()
-
-                    q = open(queue, 'r')
-                    j = open(job, 'r')
-                    q_list = q.readlines()
-                    j_list = j.readlines()
-                    pending = 0
-                
-                    if len(j_list) == 1:
+                        ftp_client=ssh_client.open_sftp()
                         try:
-                            pending = len(q_list) - q_list.index(j_list[0]) - 1
+                            ftp_client.get(f'/home/{name}/wdir/running.queue', queue)
+                            ftp_client.get(f'/home/{name}/wdir/running.job', job)
                         except:
-                            pending = len(q_list)                                # to prevent crash if running job name is not in q_list, seem to work fine
-                    pending_print = False
-                    if pending > 0:
-                        pending_print = True
-                        pending_list = []
-                        for p in range(pending):
-                            try:
-                                pending_list.append(q_list[1 + q_list.index(j_list[0]) + p])
-                            except:
-                                pending_list.append(q_list[p])                   # to prevent crash if running job name is not in q_list, seem to work fine
-                    q.close()
-                    j.close()
-                    os.remove(queue)
-                    os.remove(job)
+                            q = open(queue, 'w')
+                            j = open(job, 'w')
+                        ftp_client.close()
+
+                        q = open(queue, 'r')
+                        j = open(job, 'r')
+                        q_list = q.readlines()
+                        j_list = j.readlines()
+                        pending = 0
+                    
+                        if len(j_list) == 1:
+                            q_name_list = [q.split('/')[-1].strip('\n') for q in q_list]
+                            j_name = j_list[0].split('/')[-1].strip('\n')
+                            if j_name in q_name_list:
+                                index = q_name_list.index(j_name) + 1
+                                pending = len(q_list) - index
+                                for q_path in q_list:              # remove job from pending list if it is running
+                                    if j_name in q_path:
+                                        q_list.remove(q_path)
+                                        break
+                        else:
+                            pending = len(q_list)
+                        if pending > 0:
+                            pending_list = []
+                            for p in range(pending):
+                                try:
+                                    pending_list.append(q_list[1 + q_list.index(j_list[0]) + p])
+                                except:
+                                    pending_list.append(q_list[p])                   # to prevent crash if running job name is not in q_list, seem to work fine
+                        q.close()
+                        j.close()
+                        os.remove(queue)
+                        os.remove(job)
 
                 
                 cpu_mem_data = cpu() if print_cpu_usage else None
@@ -181,9 +191,9 @@ if __name__ == '__main__':
                 for user in range(len(users)):
                     for line in range(len(output[user])):
                         if re.findall('/g16/g16/...', output[user][line]):
-                            PIDS.append(output[user][line].split()[2])
-                            times.append(output[user][line].split()[11])
-                            names.append(output[user][line].split()[14].split('/')[-1])
+                            PIDS.append(output[user][line].split()[1])
+                            times.append(output[user][line].split()[6])
+                            names.append(output[user][line].split()[9].strip('.chk'))
                             owner.append(users[user])
                 ################################################################################## END OF CHECK, START OF PRINT
                 s = 's' if len(PIDS) != 1 else ''
@@ -196,27 +206,34 @@ if __name__ == '__main__':
                     longest_name_len = max([len(names[index][:-4]) for index in range(len(PIDS))])
                     for PID in range(len(PIDS)):
                         index = PIDS.index(PIDS[PID])
-                        cputime = int(times[PID].split(':')[0]) / 60
-                        runtime = round(cputime/24, 2) if cputime > 24 else round(cputime, 2)
-                        runtime2 = 'days' if cputime > 24 else 'hours'
-                        clock = time.ctime(time.time()).split()[3]
+                        cputime = times[PID].split(':')[0]
+                        if '-' in cputime:
+                            _time = cputime.split('-')
+                            cputime = int(_time[1]) / 60
+                            days = int(_time[0])
+                        else:
+                            cputime = int(cputime) / 60
+                            days = None
+                        runtime = round(days + cputime/24, 2) if days else round(cputime, 2)
+                        runtime2 = 'days' if days else 'hours'
+                        # clock = time.ctime(time.time()).split()[3]
                         space = ' '*(longest_name_len - len(names[PID][:-4]))
-                        print('   %-5s - %s%s - CPU Time : %s %s' % (owner[PID], names[PID][:-4], space, runtime, runtime2))
+                        print('   %-5s - %s%s - CPU Time : %s %s' % (owner[PID], names[PID], space, runtime, runtime2))
                         
-                if pending_print:
-                    print('\nQUEUE:\n')
+                if pending:
+                    print(f'\nQUEUE ({username}):\n')
                     l = len(pending_list)
                     if l > 10 and not extensive:
                         for p in range(2):
-                            pp = pending_list[p].split('/')[-1][:-1]
+                            pp = pending_list[p].split('/')[-1].strip('\n').strip('.gjf')
                             print('   %-3s - %s' % (p+1, pp))
                         print('         ...')
                         for p in [l-3, l-2, l-1]:
-                            pp = pending_list[p].split('/')[-1][:-1]
+                            pp = pending_list[p].split('/')[-1].strip('\n').strip('.gjf')
                             print('   %-3s - %s' % (p+1, pp))
                     else:
                         for p in range(l):
-                            pp = pending_list[p].split('/')[-1][:-1]
+                            pp = pending_list[p].split('/')[-1].strip('\n').strip('.gjf')
                             print('   %-3s - %s' % (p+1, pp))
                 print(yellowline)
             inp = input('\n%s--> Finished. Press Enter to refresh or insert server number to check status. - ' % (fg(245)))
